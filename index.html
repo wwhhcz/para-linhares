@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Henry & Linhares</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&family=Caveat:wght@500;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+
+/* ============================================================
+   ÁREA DE EDIÇÃO RÁPIDA
+   Tudo que você vai atualizar com o passar dos dias fica
+   organizado aqui em cima (texto) e no <script> lá embaixo (fotos e linha do tempo).
+   ============================================================ */
+
+:root{
+  --vinho-escuro:  #4a1420;
+  --vinho:         #7a2438;
+  --vinho-claro:   #a85468;
+  --marfim:        #f6ede2;
+  --marfim-escuro: #ead9c4;
+  --dourado:       #c9a15c;
+  --tinta:         #2b1416;
+
+  --display: 'Playfair Display', serif;
+  --script:  'Caveat', cursive;
+  --corpo:   'Jost', sans-serif;
+}
+
+*{ margin:0; padding:0; box-sizing:border-box; }
+
+html{ scroll-behavior:smooth; }
+
+body{
+  font-family: var(--corpo);
+  background: var(--marfim);
+  color: var(--tinta);
+  overflow-x:hidden;
+}
+
+::selection{ background: var(--dourado); color: var(--vinho-escuro); }
+
+/* ---------- barra de progresso do dia ---------- */
+#dia-contador{
+  position:fixed; top:16px; right:16px; z-index:50;
+  font-family:var(--script); font-size:1.25rem;
+  color:var(--marfim); background:var(--vinho-escuro);
+  padding:8px 18px; border-radius:999px;
+  box-shadow:0 6px 20px rgba(74,20,32,.35);
+  opacity:0; transition:opacity .8s ease;
+}
+#dia-contador.visivel{ opacity:1; }
+
+/* ============================================================
+   TELA 1 — ENVELOPE
+   ============================================================ */
+#tela-envelope{
+  position:fixed; inset:0; z-index:100;
+  display:flex; align-items:center; justify-content:center;
+  background: radial-gradient(circle at 50% 30%, var(--vinho) 0%, var(--vinho-escuro) 70%);
+  transition: opacity 1s ease, visibility 1s ease;
+}
+#tela-envelope.escondido{ opacity:0; visibility:hidden; pointer-events:none; }
+
+.envelope-wrap{ text-align:center; }
+
+.envelope{
+  width:280px; height:190px; position:relative; margin:0 auto 34px;
+  cursor:pointer;
+  filter: drop-shadow(0 20px 40px rgba(0,0,0,.4));
+}
+.envelope-corpo{
+  position:absolute; inset:0;
+  background: var(--marfim-escuro);
+  border-radius:6px;
+}
+.envelope-aba{
+  position:absolute; top:0; left:0; width:100%; height:100%;
+  clip-path: polygon(0 0, 50% 55%, 100% 0);
+  background: var(--vinho);
+  transform-origin: top;
+  transition: transform .7s cubic-bezier(.6,-0.2,.3,1.3);
+  z-index:3;
+}
+.envelope.aberto .envelope-aba{ transform: rotateX(180deg); }
+
+.selo{
+  position:absolute; top:52%; left:50%; transform:translate(-50%,-50%);
+  width:52px; height:52px; border-radius:50%;
+  background: var(--dourado);
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--script); font-size:1.6rem; color:var(--vinho-escuro);
+  z-index:4; box-shadow: 0 4px 10px rgba(0,0,0,.3);
+  transition: opacity .4s ease, transform .4s ease;
+}
+.envelope.aberto .selo{ opacity:0; transform:translate(-50%,-50%) scale(.4) rotate(30deg); }
+
+.carta-mini{
+  position:absolute; left:8%; right:8%; bottom:8px;
+  height:80%; background:var(--marfim);
+  border-radius:4px; z-index:2;
+  display:flex; align-items:center; justify-content:center;
+  text-align:center; padding:14px;
+  font-family:var(--script); color:var(--vinho); font-size:1.05rem;
+  transform: translateY(10%);
+  transition: transform .8s ease .1s;
+}
+.envelope.aberto .carta-mini{ transform: translateY(-46%); }
+
+.envelope-texto{
+  color: var(--marfim); font-family: var(--script);
+  font-size:1.3rem; letter-spacing:.5px;
+}
+.envelope-nome{
+  color: var(--marfim); font-family: var(--display);
+  font-size:2.6rem; margin-bottom:6px; font-style:italic;
+}
+
+/* ============================================================
+   SITE PRINCIPAL
+   ============================================================ */
+main{ opacity:0; transition:opacity 1.2s ease; }
+main.visivel{ opacity:1; }
+
+section{
+  padding:110px 22px;
+  position:relative;
+}
+
+.container{ max-width:880px; margin:0 auto; }
+
+.eyebrow{
+  font-family:var(--script); color:var(--dourado); font-size:1.4rem;
+  display:block; margin-bottom:6px;
+}
+
+h1,h2,h3{ font-family:var(--display); color:var(--vinho-escuro); font-weight:600; }
+
+/* ---------- HERO ---------- */
+#hero{
+  min-height:100vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; text-align:center;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(122,36,56,.08), transparent 55%),
+    radial-gradient(ellipse at 85% 80%, rgba(201,161,92,.15), transparent 50%),
+    var(--marfim);
+}
+#hero h1{
+  font-size: clamp(2.6rem, 7vw, 5rem);
+  line-height:1.05; font-style:italic;
+  margin: 10px 0 18px;
+}
+#hero p{
+  font-size:1.15rem; color:var(--vinho); max-width:520px; margin:0 auto;
+  line-height:1.7;
+}
+.hero-linha{
+  width:70px; height:2px; background:var(--dourado); margin:28px auto;
+}
+.scroll-dica{
+  margin-top:60px; font-family:var(--script); font-size:1.1rem; color:var(--vinho-claro);
+  animation: flutuar 2.4s ease-in-out infinite;
+}
+@keyframes flutuar{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(10px);} }
+
+/* ---------- CARTA ---------- */
+#carta{ background:var(--vinho-escuro); color:var(--marfim); }
+#carta .container{ max-width:660px; }
+#carta .eyebrow{ color:var(--dourado); }
+#carta h2{ color:var(--marfim); font-style:italic; margin-bottom:34px; }
+#carta p{
+  font-size:1.15rem; line-height:1.9; margin-bottom:22px;
+  color: rgba(246,237,226,.92);
+}
+#carta .assinatura{
+  font-family:var(--script); font-size:2rem; color:var(--dourado); margin-top:30px;
+}
+
+/* ---------- LINHA DO TEMPO ---------- */
+#historia{ background:var(--marfim); }
+#historia .container{ max-width:760px; }
+#historia h2{ text-align:center; font-style:italic; margin-bottom:8px; }
+#historia > .container > p.sub{
+  text-align:center; color:var(--vinho-claro); margin-bottom:70px; font-size:1.05rem;
+}
+
+.linha-tempo{ position:relative; padding-left:34px; }
+.linha-tempo::before{
+  content:""; position:absolute; left:6px; top:6px; bottom:6px; width:2px;
+  background: linear-gradient(var(--dourado), var(--vinho-claro));
+}
+.evento{ position:relative; margin-bottom:56px; }
+.evento:last-child{ margin-bottom:0; }
+.evento::before{
+  content:""; position:absolute; left:-34px; top:6px;
+  width:14px; height:14px; border-radius:50%;
+  background:var(--marfim); border:3px solid var(--dourado);
+}
+.evento .data{
+  font-family:var(--script); color:var(--vinho); font-size:1.3rem; display:block; margin-bottom:4px;
+}
+.evento h3{ font-size:1.3rem; margin-bottom:8px; }
+.evento p{ color:#5a3a40; line-height:1.7; }
+
+/* ---------- GALERIA POLAROID ---------- */
+#galeria{ background:var(--marfim-escuro); }
+#galeria h2{ text-align:center; font-style:italic; margin-bottom:70px; }
+
+.polaroid-grade{
+  display:flex; flex-wrap:wrap; gap:38px 30px; justify-content:center;
+}
+.polaroid{
+  background:#fff; padding:14px 14px 46px; width:230px;
+  box-shadow: 0 10px 24px rgba(74,20,32,.22);
+  transform: rotate(var(--rot,0deg));
+  transition: transform .35s ease, box-shadow .35s ease;
+  position:relative;
+}
+.polaroid:hover{ transform: rotate(0deg) scale(1.05); box-shadow:0 18px 34px rgba(74,20,32,.3); z-index:5; }
+.polaroid .foto-area{
+  width:100%; aspect-ratio:1/1; overflow:hidden; background:var(--marfim-escuro);
+  display:flex; align-items:center; justify-content:center;
+}
+.polaroid img{ width:100%; height:100%; object-fit:cover; display:block; }
+.polaroid .placeholder{
+  font-family:var(--script); color:var(--vinho-claro); font-size:1rem; text-align:center; padding:10px;
+}
+.polaroid figcaption{
+  position:absolute; bottom:10px; left:0; right:0; text-align:center;
+  font-family:var(--script); font-size:1.15rem; color:var(--vinho-escuro);
+}
+.polaroid:nth-child(1){ --rot:-6deg; }
+.polaroid:nth-child(2){ --rot:4deg; }
+.polaroid:nth-child(3){ --rot:-3deg; }
+.polaroid:nth-child(4){ --rot:7deg; }
+.polaroid:nth-child(5){ --rot:-8deg; }
+.polaroid:nth-child(6){ --rot:2deg; }
+.polaroid:nth-child(7){ --rot:-5deg; }
+
+/* ---------- MÚSICA ---------- */
+#musica{ background:var(--marfim); text-align:center; }
+#musica h2{ font-style:italic; margin-bottom:10px; }
+#musica p.sub{ color:var(--vinho-claro); margin-bottom:36px; }
+#musica iframe{ border-radius:14px; box-shadow:0 12px 30px rgba(74,20,32,.2); max-width:100%; }
+
+/* ---------- PERGUNTA FINAL ---------- */
+#pergunta{
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  text-align:center; flex-direction:column;
+  background: radial-gradient(circle at 50% 30%, var(--vinho) 0%, var(--vinho-escuro) 75%);
+  color:var(--marfim); overflow:hidden;
+}
+#pergunta .eyebrow{ color:var(--dourado); }
+#pergunta h2{
+  color:var(--marfim); font-style:italic; font-size:clamp(2.2rem,6vw,3.6rem);
+  margin:14px 0 40px; max-width:680px;
+}
+.botoes-resposta{
+  display:flex; gap:26px; align-items:center; justify-content:center; flex-wrap:wrap;
+  position:relative; min-height:70px; width:100%;
+}
+.btn{
+  font-family:var(--corpo); font-size:1.1rem; padding:16px 40px; border-radius:999px;
+  border:none; cursor:pointer; font-weight:500; letter-spacing:.3px;
+}
+#btn-sim{
+  background:var(--dourado); color:var(--vinho-escuro);
+  transition: transform .25s ease, box-shadow .25s ease;
+  box-shadow: 0 8px 22px rgba(201,161,92,.35);
+}
+#btn-sim:hover{ transform:scale(1.08); box-shadow:0 12px 28px rgba(201,161,92,.5); }
+#btn-nao{
+  background:transparent; color:var(--marfim); border:1.5px solid rgba(246,237,226,.5);
+  position:relative; transition: transform .12s ease;
+}
+
+#resposta-final{
+  display:none; margin-top:46px; font-family:var(--script); font-size:2.2rem; color:var(--dourado);
+  max-width:600px;
+}
+#resposta-final.mostrar{ display:block; animation: surgir .8s ease; }
+@keyframes surgir{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
+
+.coracao{
+  position:fixed; bottom:-40px; font-size:1.6rem; pointer-events:none; z-index:200;
+  animation: subir linear forwards;
+}
+@keyframes subir{
+  to{ transform: translateY(-110vh) translateX(var(--drift,0px)) rotate(360deg); opacity:0; }
+}
+
+footer{
+  text-align:center; padding:40px 20px; background:var(--vinho-escuro); color:rgba(246,237,226,.6);
+  font-size:.9rem;
+}
+
+@media (max-width:600px){
+  section{ padding:80px 18px; }
+  .polaroid{ width:180px; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.01ms !important; transition-duration:.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="dia-contador"></div>
+
+<!-- ========================= TELA DE ENVELOPE ========================= -->
+<div id="tela-envelope">
+  <div class="envelope-wrap">
+    <p class="envelope-texto">para</p>
+    <p class="envelope-nome">Linhares</p>
+    <div class="envelope" id="envelope">
+      <div class="envelope-corpo"></div>
+      <div class="carta-mini">clique para abrir</div>
+      <div class="envelope-aba"></div>
+      <div class="selo">H&L</div>
+    </div>
+  </div>
+</div>
+
+<!-- ========================= SITE PRINCIPAL ========================= -->
+<main id="main">
+
+  <!-- HERO -->
+  <section id="hero">
+    <span class="eyebrow">Henry para Linhares</span>
+    <h1>Uma carta,<br>algumas fotos<br>e um pedido.</h1>
+    <div class="hero-linha"></div>
+    <p>Antes de perguntar o que eu vim perguntar, eu queria te mostrar um pouquinho de tudo que a gente já construiu até aqui.</p>
+    <span class="scroll-dica">role para ler ↓</span>
+  </section>
+
+  <!-- CARTA -->
+  <section id="carta">
+    <div class="container">
+      <span class="eyebrow">a carta</span>
+      <h2>Pra você, Linhares</h2>
+      <!-- EDITE O TEXTO ABAIXO COM SUAS PRÓPRIAS PALAVRAS -->
+      <p>Desde o dia 11 de junho, quando a gente começou a se falar, alguma coisa mudou na forma como eu encaro os meus dias. Virou hábito bom querer te contar como foi meu dia, virou vontade genuína separar um tempinho só pra gente.</p>
+      <p>Eu não sou de fazer as coisas pela metade, e com você não seria diferente. Por isso resolvi juntar um pouco da nossa história aqui, em um lugar que só existe porque você existe nele.</p>
+      <p>Essa página vai crescer com a gente. Cada foto nova, cada conversa boa, cada data importante — tudo isso vai ganhar um espaço aqui, do jeitinho que a gente for vivendo.</p>
+      <p class="assinatura">— Henry</p>
+    </div>
+  </section>
+
+  <!-- NOSSA HISTÓRIA -->
+  <section id="historia">
+    <div class="container">
+      <span class="eyebrow" style="text-align:center;display:block;">a nossa história</span>
+      <h2>Como tudo começou</h2>
+      <p class="sub">(esta linha do tempo é só o começo — vou atualizando conforme os dias forem passando)</p>
+
+      <div class="linha-tempo" id="linha-tempo">
+        <!-- gerado automaticamente pelo JS a partir de HISTORIA_EVENTOS lá embaixo -->
+      </div>
+    </div>
+  </section>
+
+  <!-- GALERIA -->
+  <section id="galeria">
+    <div class="container">
+      <h2>Nossos momentos</h2>
+      <div class="polaroid-grade" id="galeria-fotos">
+        <!-- gerado automaticamente pelo JS a partir de FOTOS lá embaixo -->
+      </div>
+    </div>
+  </section>
+
+  <!-- MÚSICA -->
+  <section id="musica">
+    <div class="container">
+      <h2>Uma trilha pra gente</h2>
+      <p class="sub">a música que ficou marcada nesses dias</p>
+      <!--
+        Troque o "src" abaixo por um embed do Spotify.
+        No Spotify: Compartilhar > Copiar código do incorporador > pegue a URL do src.
+      -->
+      <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/COLOQUE_O_ID_AQUI" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+    </div>
+  </section>
+
+  <!-- PERGUNTA FINAL -->
+  <section id="pergunta">
+    <span class="eyebrow">e então...</span>
+    <h2>Linhares, você aceita<br>namorar comigo?</h2>
+    <div class="botoes-resposta">
+      <button class="btn" id="btn-sim">sim, aceito 💛</button>
+      <button class="btn" id="btn-nao">deixa eu pensar</button>
+    </div>
+    <div id="resposta-final">ela disse sim. 🤎</div>
+  </section>
+
+  <footer>
+    feito por Henry, com carinho, pra Linhares.
+  </footer>
+
+</main>
+
+<script>
+/* ============================================================
+   DADOS EDITÁVEIS
+   Atualize estes dois arrays com o passar dos dias.
+   ============================================================ */
+
+// Data em que vocês começaram a se falar (usada no contador de dias)
+const DATA_INICIO = "2026-06-11";
+
+// Linha do tempo da história de vocês.
+// Adicione um objeto novo pra cada evento que quiser registrar.
+const HISTORIA_EVENTOS = [
+  {
+    data: "11 de junho",
+    titulo: "O começo da conversa",
+    texto: "O dia em que tudo começou. Ainda sem saber pra onde ia dar, mas já sentindo que valia a pena continuar."
+  },
+  {
+    data: "16 de junho",
+    titulo: "O primeiro beijo",
+    texto: "Ela indo pra faculdade, carregando um monte de caixas. Eu tomei coragem — e a gente se beijou pela primeira vez."
+  },
+  {
+    data: "26 de junho",
+    titulo: "Será que estamos indo rápido demais?",
+    texto: "Uma conversa difícil, mas necessária. Paramos pra sentir se o ritmo fazia sentido pros dois — e isso mexeu com a gente."
+  },
+  {
+    data: "28 de junho",
+    titulo: "Deixar em aberto",
+    texto: "Decidimos não forçar uma resposta. Deixar a página aberta e ver, com calma, no que aquilo ia dar."
+  },
+  {
+    data: "4 de julho",
+    titulo: "Nosso primeiro encontro",
+    texto: "Fomos ao Bulls. Foi ali, sem a gente perceber direito, que a ficha começou a cair — devagar, do jeito que as coisas boas costumam cair."
+  },
+  {
+    data: "17 de julho",
+    titulo: "\"Eu te adoro\"",
+    texto: "A palavra que escolhemos pra dizer o que ainda não tínhamos coragem de chamar pelo nome certo."
+  },
+  {
+    data: "31 de julho",
+    titulo: "O aniversário dela",
+    texto: "Mandei um buquê de lírios pra casa dela. À noite, conheci a família toda — e senti que já fazia parte dali."
+  },
+  {
+    data: "9 de agosto",
+    titulo: "\"Eu te amo\"",
+    texto: "A primeira vez que dissemos, um pro outro, a palavra certa."
+  },
+  {
+    data: "em construção...",
+    titulo: "Nosso próximo capítulo",
+    texto: "Esse espaço é seu — quando tivermos mais uma data especial, ela entra aqui."
+  }
+];
+
+// Fotos para a galeria em formato polaroid.
+// IMPORTANTE: coloque os arquivos de foto na MESMA PASTA deste index.html
+// (ex: foto1.jpg, foto2.jpg) para evitar problemas de caminho no GitHub Pages.
+// Se o arquivo "src" não existir ainda, aparece um espaço reservado bonito no lugar.
+const FOTOS = [
+  { src: "foto2.jpeg", legenda: "" },
+  { src: "foto3.jpeg", legenda: "" },
+  { src: "foto1.jpeg", legenda: "" },
+  { src: "lin5.jpeg", legenda: "" },
+  { src: "lin4.jpeg", legenda: "" },
+  { src: "lin3.jpe", legenda: "" },
+  { src: "foto5.jpeg", legenda: "" }
+];
+
+/* ============================================================
+   RENDERIZAÇÃO — normalmente não precisa mexer daqui pra baixo
+   ============================================================ */
+
+// linha do tempo
+const listaTempo = document.getElementById('linha-tempo');
+HISTORIA_EVENTOS.forEach(ev => {
+  const div = document.createElement('div');
+  div.className = 'evento';
+  div.innerHTML = `
+    <span class="data">${ev.data}</span>
+    <h3>${ev.titulo}</h3>
+    <p>${ev.texto}</p>
+  `;
+  listaTempo.appendChild(div);
+});
+
+// galeria de polaroids
+const grade = document.getElementById('galeria-fotos');
+FOTOS.forEach(foto => {
+  const fig = document.createElement('figure');
+  fig.className = 'polaroid';
+  fig.innerHTML = `
+    <div class="foto-area">
+      <img src="${foto.src}" alt="${foto.legenda}"
+           onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'placeholder',innerText:'adicione ${foto.src}'}))">
+    </div>
+    <figcaption>${foto.legenda}</figcaption>
+  `;
+  grade.appendChild(fig);
+});
+
+// contador de dias juntos
+function atualizarContador(){
+  const inicio = new Date(DATA_INICIO + "T00:00:00");
+  const hoje = new Date();
+  const dias = Math.max(0, Math.floor((hoje - inicio) / 86400000));
+  const el = document.getElementById('dia-contador');
+  el.textContent = `dia ${dias}`;
+  el.classList.add('visivel');
+}
+atualizarContador();
+
+/* ============================================================
+   INTERAÇÕES
+   ============================================================ */
+
+// abrir envelope
+const envelope = document.getElementById('envelope');
+const telaEnvelope = document.getElementById('tela-envelope');
+const main = document.getElementById('main');
+
+envelope.addEventListener('click', () => {
+  if (envelope.classList.contains('aberto')) return;
+  envelope.classList.add('aberto');
+  setTimeout(() => {
+    telaEnvelope.classList.add('escondido');
+    main.classList.add('visivel');
+    document.body.style.overflow = 'auto';
+  }, 900);
+});
+document.body.style.overflow = 'hidden';
+
+// botão "deixa eu pensar" foge do cursor/toque
+const btnNao = document.getElementById('btn-nao');
+const btnSim = document.getElementById('btn-sim');
+const wrap = document.querySelector('.botoes-resposta');
+
+function fugir(){
+  const limiteX = wrap.clientWidth - btnNao.offsetWidth;
+  const limiteY = wrap.clientHeight - btnNao.offsetHeight;
+  const x = Math.random() * Math.max(limiteX, 40) - limiteX/2;
+  const y = (Math.random() * 40) - 20;
+  btnNao.style.position = 'relative';
+  btnNao.style.transform = `translate(${x}px, ${y}px)`;
+}
+btnNao.addEventListener('mouseenter', fugir);
+btnNao.addEventListener('click', fugir);
+btnNao.addEventListener('touchstart', (e) => { e.preventDefault(); fugir(); });
+
+// botão "sim"
+const respostaFinal = document.getElementById('resposta-final');
+btnSim.addEventListener('click', () => {
+  respostaFinal.classList.add('mostrar');
+  soltarCoracoes();
+});
+
+function soltarCoracoes(){
+  const emojis = ['🤎','💛','✨','💫'];
+  for (let i=0; i<26; i++){
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'coracao';
+      c.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+      c.style.left = Math.random()*100 + 'vw';
+      c.style.setProperty('--drift', (Math.random()*160-80) + 'px');
+      c.style.animationDuration = (3 + Math.random()*2) + 's';
+      c.style.fontSize = (1 + Math.random()*1.4) + 'rem';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 6000);
+    }, i * 90);
+  }
+}
+</script>
+</body>
+</html>
