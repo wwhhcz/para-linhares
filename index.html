@@ -145,22 +145,72 @@ h1,h2,h3{ font-family:var(--display); color:var(--vinho-escuro); font-weight:600
     radial-gradient(ellipse at 20% 20%, rgba(122,36,56,.08), transparent 55%),
     radial-gradient(ellipse at 85% 80%, rgba(201,161,92,.15), transparent 50%),
     var(--marfim);
+  overflow:hidden;
 }
+.hero-hearts{
+  position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:0;
+}
+.hero-hearts span{
+  position:absolute; bottom:-10%; color:var(--vinho-claro); opacity:.3;
+  animation: flutuarFundo linear infinite;
+}
+@keyframes flutuarFundo{
+  to{ transform: translateY(-130vh) rotate(25deg); opacity:0; }
+}
+.hero-conteudo{ position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; }
 #hero h1{
   font-size: clamp(2.6rem, 7vw, 5rem);
   line-height:1.05; font-style:italic;
   margin: 10px 0 18px;
 }
+#hero h1 span{
+  display:inline-block; opacity:0; transform:translateY(16px);
+  animation: revelarPalavra .8s ease forwards;
+}
+@keyframes revelarPalavra{ to{ opacity:1; transform:translateY(0); } }
 #hero p{
   font-size:1.15rem; color:var(--vinho); max-width:520px; margin:0 auto;
-  line-height:1.7;
+  line-height:1.7; opacity:0; animation: surgirSuave 1s ease forwards; animation-delay:1.4s;
 }
+@keyframes surgirSuave{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
 .hero-linha{
   width:70px; height:2px; background:var(--dourado); margin:28px auto;
+  transform-origin:center; transform:scaleX(0); animation: abrirLinha .8s ease forwards; animation-delay:1.1s;
 }
+@keyframes abrirLinha{ to{ transform:scaleX(1); } }
+
+.hero-coracao{
+  margin-top:36px; width:56px; height:56px; border-radius:50%;
+  background:transparent; border:1.5px solid var(--vinho-claro); color:var(--vinho);
+  font-size:1.5rem; cursor:pointer; line-height:1;
+  transition: transform .25s ease, background .25s ease, color .25s ease, box-shadow .25s ease;
+  opacity:0; animation: surgirSuave 1s ease forwards; animation-delay:1.9s;
+}
+.hero-coracao:hover{ transform:scale(1.1); }
+.hero-coracao.pulsando{
+  background:var(--vinho); color:var(--marfim); border-color:var(--vinho);
+  box-shadow:0 8px 22px rgba(122,36,56,.35);
+  animation: pulsar 1.1s ease-in-out infinite;
+}
+@keyframes pulsar{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.12); } }
+
+.hero-dica-coracao{
+  margin-top:8px; font-family:var(--script); font-size:1rem; color:var(--vinho-claro);
+  opacity:0; animation: surgirSuave 1s ease forwards; animation-delay:2.1s;
+}
+
+.hero-mensagem-secreta{
+  font-family:var(--script); font-size:1.5rem; color:var(--vinho); max-width:480px;
+  margin-top:0; max-height:0; opacity:0; overflow:hidden;
+  transition: max-height .7s ease, opacity .6s ease, margin-top .6s ease;
+}
+.hero-mensagem-secreta.mostrar{ max-height:160px; opacity:1; margin-top:22px; }
+
 .scroll-dica{
-  margin-top:60px; font-family:var(--script); font-size:1.1rem; color:var(--vinho-claro);
+  margin-top:50px; font-family:var(--script); font-size:1.1rem; color:var(--vinho-claro);
   animation: flutuar 2.4s ease-in-out infinite;
+  opacity:0; animation: surgirSuave 1s ease forwards, flutuar 2.4s ease-in-out infinite 2.4s;
+  animation-delay:2.4s, 2.4s;
 }
 @keyframes flutuar{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(10px);} }
 
@@ -203,32 +253,56 @@ h1,h2,h3{ font-family:var(--display); color:var(--vinho-escuro); font-weight:600
 .evento h3{ font-size:1.3rem; margin-bottom:8px; }
 .evento p{ color:#5a3a40; line-height:1.7; }
 
-/* ---------- GALERIA POLAROID ---------- */
+/* ---------- GALERIA POLAROID (jogo de virar) ---------- */
 #galeria{ background:var(--marfim-escuro); }
-#galeria h2{ text-align:center; font-style:italic; margin-bottom:70px; }
+#galeria h2{ text-align:center; font-style:italic; margin-bottom:8px; }
+#galeria p.sub{
+  text-align:center; color:var(--vinho-claro); margin-bottom:70px; font-size:1.05rem;
+}
 
 .polaroid-grade{
   display:flex; flex-wrap:wrap; gap:38px 30px; justify-content:center;
 }
 .polaroid{
-  background:#fff; padding:14px 14px 46px; width:230px;
-  box-shadow: 0 10px 24px rgba(74,20,32,.22);
-  transform: rotate(var(--rot,0deg));
-  transition: transform .35s ease, box-shadow .35s ease;
-  position:relative;
+  width:230px; height:290px; perspective:1200px; cursor:pointer;
+  background:transparent;
 }
-.polaroid:hover{ transform: rotate(0deg) scale(1.05); box-shadow:0 18px 34px rgba(74,20,32,.3); z-index:5; }
+.polaroid-interior{
+  position:relative; width:100%; height:100%;
+  transform: rotate(var(--rot,0deg));
+  transition: transform .7s cubic-bezier(.4,.2,.2,1);
+  transform-style: preserve-3d;
+}
+.polaroid:hover .polaroid-interior{ transform: rotate(0deg) scale(1.04); }
+.polaroid.virado .polaroid-interior{ transform: rotate(0deg) rotateY(180deg) scale(1.04); }
+
+.polaroid-frente, .polaroid-verso{
+  position:absolute; inset:0; backface-visibility:hidden;
+  box-shadow: 0 10px 24px rgba(74,20,32,.22);
+  border-radius:2px;
+}
+.polaroid-frente{
+  background:#fff; padding:14px 14px 46px;
+  display:flex; flex-direction:column;
+}
+.polaroid-verso{
+  background:var(--vinho-escuro); color:var(--marfim);
+  transform: rotateY(180deg);
+  display:flex; align-items:center; justify-content:center;
+  text-align:center; padding:26px;
+  font-family:var(--script); font-size:1.25rem; line-height:1.5;
+}
 .polaroid .foto-area{
-  width:100%; aspect-ratio:1/1; overflow:hidden; background:var(--marfim-escuro);
+  width:100%; flex:1; overflow:hidden; background:var(--marfim-escuro);
   display:flex; align-items:center; justify-content:center;
 }
 .polaroid img{ width:100%; height:100%; object-fit:cover; display:block; }
 .polaroid .placeholder{
   font-family:var(--script); color:var(--vinho-claro); font-size:1rem; text-align:center; padding:10px;
 }
-.polaroid figcaption{
-  position:absolute; bottom:10px; left:0; right:0; text-align:center;
-  font-family:var(--script); font-size:1.15rem; color:var(--vinho-escuro);
+.polaroid-frente figcaption{
+  padding-top:10px; text-align:center;
+  font-family:var(--script); font-size:1rem; color:var(--vinho-claro);
 }
 .polaroid:nth-child(1){ --rot:-6deg; }
 .polaroid:nth-child(2){ --rot:4deg; }
@@ -276,8 +350,8 @@ h1,h2,h3{ font-family:var(--display); color:var(--vinho-escuro); font-weight:600
 }
 
 #resposta-final{
-  display:none; margin-top:46px; font-family:var(--script); font-size:2.2rem; color:var(--dourado);
-  max-width:600px;
+  display:none; margin-top:46px; font-family:var(--script); font-size:2.4rem; color:var(--dourado);
+  max-width:600px; line-height:1.4;
 }
 #resposta-final.mostrar{ display:block; animation: surgir .8s ease; }
 @keyframes surgir{ from{opacity:0; transform:translateY(14px);} to{opacity:1; transform:translateY(0);} }
@@ -328,11 +402,17 @@ footer{
 
   <!-- HERO -->
   <section id="hero">
-    <span class="eyebrow">Henry para Linhares</span>
-    <h1>Uma carta,<br>algumas fotos<br>e um pedido.</h1>
-    <div class="hero-linha"></div>
-    <p>Antes de perguntar o que eu vim perguntar, eu queria te mostrar um pouquinho de tudo que a gente já construiu até aqui.</p>
-    <span class="scroll-dica">role para ler ↓</span>
+    <div class="hero-hearts" id="hero-hearts"></div>
+    <div class="hero-conteudo">
+      <span class="eyebrow">Henry para Linhares</span>
+      <h1 id="hero-titulo"></h1>
+      <div class="hero-linha"></div>
+      <p>Antes de perguntar o que eu vim perguntar, eu queria te mostrar um pouquinho de tudo que a gente já construiu até aqui.</p>
+      <button class="hero-coracao" id="hero-coracao" aria-label="toque no coração">♥</button>
+      <span class="hero-dica-coracao">toque no coração</span>
+      <p class="hero-mensagem-secreta" id="hero-mensagem-secreta">Cada dia com você é motivo pra eu querer recomeçar tudo de novo, do seu lado.</p>
+      <span class="scroll-dica">role para ler ↓</span>
+    </div>
   </section>
 
   <!-- CARTA -->
@@ -341,10 +421,15 @@ footer{
       <span class="eyebrow">a carta</span>
       <h2>Pra você, Linhares</h2>
       <!-- EDITE O TEXTO ABAIXO COM SUAS PRÓPRIAS PALAVRAS -->
-      <p>Desde o dia 11 de junho, quando a gente começou a se falar, alguma coisa mudou na forma como eu encaro os meus dias. Virou hábito bom querer te contar como foi meu dia, virou vontade genuína separar um tempinho só pra gente.</p>
-      <p>Eu não sou de fazer as coisas pela metade, e com você não seria diferente. Por isso resolvi juntar um pouco da nossa história aqui, em um lugar que só existe porque você existe nele.</p>
-      <p>Essa página vai crescer com a gente. Cada foto nova, cada conversa boa, cada data importante — tudo isso vai ganhar um espaço aqui, do jeitinho que a gente for vivendo.</p>
-      <p class="assinatura">— Henry</p>
+      <p>Linhares, eu te amo. Não do jeito pequeno que às vezes a gente diz sem pensar — eu te amo do jeito que fica, que cresce, que eu sinto mais forte a cada dia que a gente passa junto. Um amor que não pede pressa pra se provar, porque ele já se prova sozinho, todo santo dia, nas coisas mais simples.</p>
+      <p>Eu queria que você soubesse o tanto que eu penso em você. Não é um pensamento que passa e vai embora — é constante, é no meio do dia sem motivo nenhum, é antes de dormir, é assim que eu vim escrevendo cada linha dessa página, com você na cabeça o tempo inteiro.</p>
+      <p>E junto com esse amor vem um orgulho enorme de você. Orgulho de ver a mulher forte, batalhadora e cheia de brilho que você é. Você constrói as suas coisas com as próprias mãos, não abre mão de quem é por ninguém, e isso é algo que eu admiro em você todos os dias. Eu te olho e penso: que sorte a minha, poder estar do seu lado vendo você crescer.</p>
+      <p>Tem uma paz em mim que só existe quando eu tô com você. Não interessa se é um dia corrido ou uma noite qualquer de conversa boba — do seu lado, tudo fica mais leve, mais certo, mais bonito. Você trouxe cor pra coisas que eu nem sabia que precisavam de cor.</p>
+      <p>Desde o dia 11 de junho, quando a gente começou a se falar, alguma coisa mudou na forma como eu encaro os meus dias. Cada conversa boa, cada "eu te adoro" que virou "eu te amo", cada instante que a gente viveu — tudo isso foi construindo, devagar e com verdade, o que a gente tem hoje. E olhando pra trás, eu não teria coragem de mudar um segundo sequer, porque cada parte, até as difíceis, me trouxe até você.</p>
+      <p>E eu já não consigo pensar no meu futuro sem te colocar nele. Eu imagino a gente conquistando coisas juntos — nossos planos, nossos sonhos, nossa casa, nossa vida — e sabendo que, seja o que vier, a gente vai construir lado a lado. Eu quero ser esse tipo de parceiro pra você: que soma, que apoia, que fica. Que comemora suas vitórias como se fossem minhas, e que segura sua mão nos dias difíceis sem nem precisar você pedir.</p>
+      <p>Eu te amo com a calma de quem sabe que achou algo raro, e com a vontade de quem ainda tem tanta coisa boa pra viver do seu lado. Você é o tipo de amor que eu não vejo motivo pra deixar passar — e é exatamente por isso que essa página existe.</p>
+      <p>Essa carta é só um pedacinho de tudo o que eu sinto. Vai crescer com a gente, do jeitinho que a gente for vivendo — mas o que ela representa, esse amor e esse orgulho por você, isso já é grande demais pra caber aqui.</p>
+      <p class="assinatura">— Henry, que te ama muito.</p>
     </div>
   </section>
 
@@ -365,6 +450,7 @@ footer{
   <section id="galeria">
     <div class="container">
       <h2>Nossos momentos</h2>
+      <p class="sub">toque em cada foto pra virar e descobrir uma mensagem escondida</p>
       <div class="polaroid-grade" id="galeria-fotos">
         <!-- gerado automaticamente pelo JS a partir de FOTOS lá embaixo -->
       </div>
@@ -380,7 +466,7 @@ footer{
         Troque o "src" abaixo por um embed do Spotify.
         No Spotify: Compartilhar > Copiar código do incorporador > pegue a URL do src.
       -->
-      <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/COLOQUE_O_ID_AQUI" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+      <iframe style="border-radius:12px" src="https://open.spotify.com/embed/track/4PVXNlKjFXFElT6ZvsGCtz" width="100%" height="152" frameborder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
     </div>
   </section>
 
@@ -392,7 +478,7 @@ footer{
       <button class="btn" id="btn-sim">sim, aceito 💛</button>
       <button class="btn" id="btn-nao">deixa eu pensar</button>
     </div>
-    <div id="resposta-final">ela disse sim. 🤎</div>
+    <div id="resposta-final">Agora levanta esse olhar até mim, Linhares...<br>tem uma coisa que eu quero te entregar. 💍</div>
   </section>
 
   <footer>
@@ -460,18 +546,19 @@ const HISTORIA_EVENTOS = [
   }
 ];
 
-// Fotos para a galeria em formato polaroid.
+// Fotos para a galeria em formato polaroid (jogo de virar).
 // IMPORTANTE: coloque os arquivos de foto na MESMA PASTA deste index.html
 // (ex: foto1.jpg, foto2.jpg) para evitar problemas de caminho no GitHub Pages.
 // Se o arquivo "src" não existir ainda, aparece um espaço reservado bonito no lugar.
+// "brincadeira" é o texto que aparece quando a foto é virada — troque à vontade.
 const FOTOS = [
-  { src: "foto2.jpeg", legenda: "" },
-  { src: "foto3.jpeg", legenda: "" },
-  { src: "foto1.jpeg", legenda: "" },
-  { src: "lin5.jpeg", legenda: "" },
-  { src: "lin4.jpeg", legenda: "" },
-  { src: "lin3.jpe", legenda: "" },
-  { src: "foto5.jpeg", legenda: "" }
+  { src: "foto2.jpeg", legenda: "", brincadeira: "prova oficial de que a gente é fofo até sem querer 🤎" },
+  { src: "foto3.jpeg", legenda: "", brincadeira: "adivinha quem tava morrendo de vergonha aqui?" },
+  { src: "foto1.jpeg", legenda: "", brincadeira: "se essa foto pudesse falar, diria: \"ai, que dois bobos apaixonados\"" },
+  { src: "lin5.jpeg", legenda: "", brincadeira: "sorriso involuntário ao olhar essa foto — sintoma conhecido 😄" },
+  { src: "lin4.jpeg", legenda: "", brincadeira: "essa aqui é oficialmente uma das minhas favoritas. chuta o motivo" },
+  { src: "lin3.jpe", legenda: "", brincadeira: "plot twist: essa foto quase não rolou. ainda bem que rolou" },
+  { src: "foto5.jpeg", legenda: "", brincadeira: "guardada aqui igual eu guardo você: com todo cuidado" }
 ];
 
 /* ============================================================
@@ -491,18 +578,31 @@ HISTORIA_EVENTOS.forEach(ev => {
   listaTempo.appendChild(div);
 });
 
-// galeria de polaroids
+// galeria de polaroids (jogo de virar)
 const grade = document.getElementById('galeria-fotos');
 FOTOS.forEach(foto => {
   const fig = document.createElement('figure');
   fig.className = 'polaroid';
+  fig.tabIndex = 0;
+  fig.setAttribute('role', 'button');
+  fig.setAttribute('aria-label', 'toque para virar a foto e ver a mensagem');
   fig.innerHTML = `
-    <div class="foto-area">
-      <img src="${foto.src}" alt="${foto.legenda}"
-           onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'placeholder',innerText:'adicione ${foto.src}'}))">
+    <div class="polaroid-interior">
+      <div class="polaroid-frente">
+        <div class="foto-area">
+          <img src="${foto.src}" alt="${foto.legenda}"
+               onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'placeholder',innerText:'adicione ${foto.src}'}))">
+        </div>
+        <figcaption>toque pra virar ↻</figcaption>
+      </div>
+      <div class="polaroid-verso">${foto.brincadeira || ''}</div>
     </div>
-    <figcaption>${foto.legenda}</figcaption>
   `;
+  const virar = () => fig.classList.toggle('virado');
+  fig.addEventListener('click', virar);
+  fig.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); virar(); }
+  });
   grade.appendChild(fig);
 });
 
@@ -516,6 +616,38 @@ function atualizarContador(){
   el.classList.add('visivel');
 }
 atualizarContador();
+
+/* ============================================================
+   HERO INTERATIVO
+   ============================================================ */
+
+// título revelado palavra por palavra
+const heroTitulo = document.getElementById('hero-titulo');
+const palavrasTitulo = ["Uma", "carta,", "algumas", "fotos", "e", "um", "pedido."];
+heroTitulo.innerHTML = palavrasTitulo.map((palavra, i) => {
+  const quebra = (i === 2 || i === 4) ? '<br>' : ' ';
+  return `<span style="animation-delay:${0.15 + i * 0.12}s">${palavra}</span>${quebra}`;
+}).join('');
+
+// corações flutuando suavemente no fundo do hero
+const heroHearts = document.getElementById('hero-hearts');
+for (let i = 0; i < 16; i++) {
+  const span = document.createElement('span');
+  span.textContent = '♥';
+  span.style.left = Math.random() * 100 + '%';
+  span.style.fontSize = (0.8 + Math.random() * 1.3) + 'rem';
+  span.style.animationDuration = (12 + Math.random() * 12) + 's';
+  span.style.animationDelay = (Math.random() * 14) + 's';
+  heroHearts.appendChild(span);
+}
+
+// coração clicável revela uma mensagem
+const heroCoracao = document.getElementById('hero-coracao');
+const heroMensagem = document.getElementById('hero-mensagem-secreta');
+heroCoracao.addEventListener('click', () => {
+  heroCoracao.classList.toggle('pulsando');
+  heroMensagem.classList.toggle('mostrar');
+});
 
 /* ============================================================
    INTERAÇÕES
@@ -557,6 +689,9 @@ btnNao.addEventListener('touchstart', (e) => { e.preventDefault(); fugir(); });
 // botão "sim"
 const respostaFinal = document.getElementById('resposta-final');
 btnSim.addEventListener('click', () => {
+  wrap.style.transition = 'opacity .5s ease';
+  wrap.style.opacity = '0';
+  setTimeout(() => { wrap.style.display = 'none'; }, 500);
   respostaFinal.classList.add('mostrar');
   soltarCoracoes();
 });
